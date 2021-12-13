@@ -1,0 +1,326 @@
+---
+title: "Pueblos Mágicos de México"
+author: "importancia económica"
+date: "Turismo"
+output: html_document
+--- 
+## Ámbito regional 132 Pueblos Mágicos 
+Como  primera visualizacion georreferenciada obtendremos por Entidad Federativa a nivel estatal la concentracion del numero de pueblos mágicos existentes en la actualidad en México.
+
+Se introduce el logo oficial de pueblos mágicos de México (reguilete) y como mejora se introduce una escala de color que nos muestra de orden ascendente el numero de pueblos localizadas en burbujas en el mapa.
+
+
+
+
+```{r include=FALSE}
+
+library(foreign)
+library(tidyverse) 
+library(lubridate)
+library(readr)
+library(sp)
+
+library(leaflet)
+library(sp)
+library(maps)
+
+setwd("C:\\Users\\Jazmin Yepez\\Documents\\pueblosm")
+rest <- read_csv("pueblosm.csv") %>% data.frame()
+
+palet <- colorNumeric(c("#A2FF00","#FF88FF", "#00A2FF"),  domain = rest$num, na.color = "transparent")
+
+
+
+
+m <- leaflet(data = rest)%>%
+  addMarkers(~longitud, ~latitud,label = ~as.character(nom_estab),popup = ~as.character(nom_estab), labelOptions = labelOptions(noHide = T, textOnly = TRUE), icon = list(iconUrl = 'https://www.pinclipart.com/picdir/big/565-5652149_logo-de-pueblos-magicos-clipart.png',iconSize = c (35, 35))) %>%
+  addTiles() %>% addProviderTiles(providers$CartoDB.VoyagerLabelsUnder)%>%
+  addCircles(lng = ~longitud, lat = ~latitud , weight = 6, popup = ~num, radius = 50000, color = ~palet(num),fillOpacity = 1) %>% 
+addLegend(position = "bottomright", pal = palet,values = ~num, title = "Escala Numero de Pueblos ", opacity = 1)
+
+
+m
+
+
+```{r}
+m
+```
+
+## Visualización por Heatmap 
+
+Ámbito regional 132 pueblos mágicos por estado
+
+Como segunda visualización obtenemos un heatmap y mapa de calor  de escala  choropleth violeta , en donde podemos observar entre más color tenga el estado más concentracion de pueblos tiene.
+
+```{r include=FALSE}
+
+setwd("C:\\Users\\Jazmin Yepez\\Documents\\pueblosm")
+
+headd <- read_csv("head.csv") %>% data.frame()
+
+library(dplyr)
+library(ggplot2)
+library(foreign)
+library(tidyverse) 
+library(lubridate)
+library(readr)
+library(sp)
+library(rgdal)
+library(leaflet)
+library(sp)
+library(maps)
+
+
+
+pl <- ggplot(data = headd, aes(x = num, y = nom, fill = num))
+pl <- pl + geom_tile()
+pl <- ggplot(data = headd, aes(x = num, y = nom, fill = num))
+pl <- pl + geom_tile()
+pl <- pl + theme_minimal()
+pl <- pl + scale_fill_gradient(low ="white", high = "blue")
+pl <- pl + labs(title = "Pueblos mágicos de México ")
+pl <- pl + labs(x = "Numero de pueblos mágicos ", y = "Estados", fill = "Escala")
+pl <- pl + labs(subtitle = "Ámbito regional 132 pueblos mágicos por Estado")
+
+pl
+
+
+```{r}
+pl
+```
+
+## Visualizacion Treemap
+
+Como tercer visualización un treemap donde observamos una escala de de cuadros de orden ascendente , el tamaño aumenta de acuerdo a el numero de pueblos mágicos que tenga el estado.
+
+
+```{r include=FALSE}
+
+
+library(treemapify)
+library(tidyverse)
+library(treemapify)
+
+estado = c("México","Jalisco","Chiapas","Veracruz","Puebla","Quintana Roo","Zacatecas","Guanajuato","Michoacan","Yucatan","Queretaro","Nuevo Leon","Baja California","Baja California S.","Tlaxcala","Sinaloa","Hidalgo","Guerrero","Coahuila","Nayarit","Sonora","Morelos","San L. Potosi","Oaxaca","Aguascalientes","Campeche","Chihuahua","Colima","Tamaulipas","Tabasco","Durango")
+numerop = c(10,9,4,6,10,3,6,6,9,4,6,3,1,2,2,4,7,1,7,4,2,2,4,6,3,2,3,1,2,1,2)
+dataf = data.frame(estado,numerop)
+
+cuad <- ggplot(dataf, aes(area = numerop, 
+                  fill = estado, 
+                  label = numerop)) +
+  geom_treemap() + 
+  geom_treemap_text(colour = "white", place = "centre", size = 10) +
+  labs(title = "Pueblos Magicos de México", 
+       caption = "Ámbito regional 132 pueblos mágicos") 
+cuad
+
+
+
+
+```{r}
+cuad
+```
+
+## Ámbito regional 132 pueblos mágicos por Macro región
+
+Observamos un mapa  georreferenciado de las 8 Macro regiones funciónales de la Entidad Federativa.
+
+La 8 Macroregiones son : Mar de Cortés (9), Norte centro (5),Noreste(12), Centro Norte Occidente (42), Centro (38), Golfo(7), Pacífico Sur(10), Península de Yucatán (9).
+
+
+```{r include=FALSE }
+library(foreign)
+library(tidyverse)
+library(lubridate)
+library(readr)
+library(sp)
+library(rgdal)
+library(leaflet)
+
+
+setwd("C:\\Users\\Jazmin Yepez\\Documents\\pueblosm") 
+ogrListLayers("estados.shp")
+shape=readOGR("estados.shp", layer="estados")
+
+
+
+factpal <- colorFactor(colorRamp(6), shape$ESTADO)
+
+lapal <- colorFactor(colorRamp(2), shape$ESTADO)
+
+lapalet <- colorFactor(colorRamp(4), shape$ESTADO)
+
+facpalet <- colorFactor(colorRamp(8), shape$ESTADO)
+
+facpaleta <- colorFactor(colorRamp(9), shape$ESTADO)
+
+facpa <- colorFactor(colorRamp(11), shape$ESTADO)
+
+facpall <- colorFactor(colorRamp(13), shape$ESTADO)
+facpat <- colorFactor(colorRamp(15), shape$ESTADO)
+
+faccp <- colorFactor(colorRamp(1), shape$ESTADO)
+
+
+marcortes <- subset(shape, shape$ESTADO %in% c("Baja California","Baja California Sur","Sonora","Sinaloa" )) 
+
+nortecentro <- subset(shape, shape$ESTADO %in% c("Chihuahua", "Durango")) 
+
+noroeste <- subset(shape, shape$ESTADO %in% c("Coahuila", "Nuevo LeÃ³n", "Tamaulipas")) 
+
+cennortocc <- subset(shape, shape$CODIGO %in% c("MX32", "MX18","MX24","MX01","MX11","MX14","MX08","MX16")) 
+
+centro <- subset(shape, shape$ESTADO %in% c("Tlaxcala", "MÃ©xico","Distrito Federal","QuerÃ©taro","Hidalgo","Guerrero","Morelos","Puebla")) 
+
+pacifisur <- subset(shape, shape$ESTADO %in% c("Chiapas", "Oaxaca")) 
+
+golfo <- subset(shape, shape$ESTADO %in% c("Veracruz", "Tabasco")) 
+
+penyuc <- subset(shape, shape$ESTADO %in% c("Campeche", "YucatÃ¡n","Quintana Roo")) 
+
+
+mapita <- leaflet() %>%
+  addPolygons(data = marcortes ,stroke = FALSE, smoothFactor = 0.2, fillOpacity = 1,
+                          color = ~factpal(ESTADO))  %>% addTiles()%>%
+  addPolygons(data = noroeste ,stroke = FALSE, smoothFactor = 0.2, fillOpacity = 1,
+              color = ~lapal(ESTADO))%>%
+  addPolygons(data = nortecentro ,stroke = FALSE, smoothFactor = 0.2, fillOpacity = 1,
+              color = ~lapalet(ESTADO))%>%
+  addPolygons(data = cennortocc ,stroke = FALSE, smoothFactor = 0.2, fillOpacity = 1,
+              color = ~facpalet(ESTADO))%>%
+  addPolygons(data = centro ,stroke = FALSE, smoothFactor = 0.2, fillOpacity = 1,
+              color = ~facpa(ESTADO))%>%
+  addPolygons(data = pacifisur ,stroke = FALSE, smoothFactor = 0.2, fillOpacity = 1,
+              color = ~facpall(ESTADO))%>%
+  addPolygons(data = golfo ,stroke = FALSE, smoothFactor = 0.2, fillOpacity = 1,
+              color = ~facpat(ESTADO))%>%
+  addPolygons(data = penyuc ,stroke = FALSE, smoothFactor = 0.2, fillOpacity = 1,
+              color = ~faccp(ESTADO))%>%
+  addTiles() %>% addProviderTiles(providers$CartoDB.VoyagerLabelsUnder) %>% 
+  addMarkers(lng = -103.02432, lat = 23.65267, popup = "Centro Norte Occidente ",
+             label = "Centro Norte Occidente",
+             labelOptions = labelOptions(noHide = T), icon = list(iconUrl ='https://pngimage.net/wp-content/uploads/2018/06/logo-pueblo-magico-png.png', iconSize = c(40,40)))%>% 
+  addMarkers(lng = -115.28186, lat = 30.86025, popup = "Mar Cortes ",
+             label = "Mar Cortés",
+             labelOptions = labelOptions(noHide = T), icon = list(iconUrl = 'https://pngimage.net/wp-content/uploads/2018/06/logo-pueblo-magico-png.png', iconSize = c(40,40)))%>%
+  addMarkers(lng = -105.92181, lat = 29.54942, popup = "Norte Centro ",
+             label = "Norte Centro",
+             labelOptions = labelOptions(noHide = T), icon = list(iconUrl = 'https://pngimage.net/wp-content/uploads/2018/06/logo-pueblo-magico-png.png', iconSize = c(40,40)))%>%
+  addMarkers(lng = -100.24650, lat = 26.58924, popup = "Noroeste ",
+             label = "Noroeste",
+             labelOptions = labelOptions(noHide = T), icon = list(iconUrl = 'https://pngimage.net/wp-content/uploads/2018/06/logo-pueblo-magico-png.png',iconSize = c(40,40)))%>%
+  addMarkers(lng = -99.16564, lat = 19.51030, popup = "Centro ",
+             label = "Centro",
+             labelOptions = labelOptions(noHide = T),icon = list(iconUrl = 'https://pngimage.net/wp-content/uploads/2018/06/logo-pueblo-magico-png.png',iconSize = c(40,40)))%>%
+  addMarkers(lng = -94.53968, lat = 18.19408, popup = "Golfo ",
+             label = "Golfo",
+             labelOptions = labelOptions(noHide = T),icon = list(iconUrl = 'https://pngimage.net/wp-content/uploads/2018/06/logo-pueblo-magico-png.png', iconSize = c(40,40)))%>%
+  addMarkers(lng = -92.46833, lat = 15.017997, popup = "Pacifico Sur",
+             label = "Pacifico Sur",
+             labelOptions = labelOptions,(noHide = T),icon = list(iconUrl = 'https://pngimage.net/wp-content/uploads/2018/06/logo-pueblo-magico-png.png',iconSize = c(40,40)))%>%
+  addMarkers(lng = -86.85474, lat = 21.17060, popup = "Península de Yucatán ",
+             label = "Pen Yucatán",
+             labelOptions = labelOptions(noHide = T),icon = list(iconUrl = 'https://pngimage.net/wp-content/uploads/2018/06/logo-pueblo-magico-png.png', iconSize = c(40,40)))
+
+
+
+
+```{r}
+mapita
+```
+
+
+## Grafico 1 PIB Nacional y PIB Turístico 2003-2019
+Participación  del turismo
+
+El grafico muestra el comportamiento con base en el indicador del PIB Nacional , así como del PIB Turístico y su participación para el período 2003- 2019 .
+
+
+```{r include=FALSE}
+
+
+library(foreign)
+library(tidyverse) 
+library(lubridate)
+library(readr)
+library(sp)
+library(rgdal)
+library(leaflet)
+library(sp)
+library(gganimate)
+library(ggplot2)
+library(dplyr)
+library(ggthemes)
+library(gapminder)
+
+setwd("C:\\Users\\Jazmin Yepez\\Documents\\pueblosm") 
+
+serie <- read.csv("temporal.csv") %>% data.frame()
+
+ anim <- ggplot(serie, aes( x = año, y = pib.nacional, color = dato,
+                   group = dato )) +
+  geom_line( size = 2) +
+  geom_point(size = 8) +
+  labs( title = "PIB Nacional Y Turístico 2003-2019 ",
+        x = "Años",
+        y = "(millones de pesos a precios 2013)")  + 
+  theme_minimal() + transition_manual(año)
+
+
+anim 
+
+
+```{r}
+anim
+```
+
+
+## Grafico PIB Turistico por Macro Región
+
+
+
+```{r include=FALSE , include==FALSE}
+
+library(ggplot2)
+library(tidyverse)
+library(gifski)
+library(gganimate)
+library(gapminder) 
+library(hrbrthemes)
+library(readr) 
+library(sp)
+library(rgdal)
+library(gganimate)
+library(dplyr)
+library(ggthemes) 
+library(hrbrthemes)
+library(Rcpp)
+  library(gapminder) 
+library(foreign)
+
+setwd("C:\\Users\\Jazmin Yepez\\Documents\\pueblosm")
+
+primer <- read_csv("lineasuno.csv")
+
+primo <- primer %>%
+    ggplot(aes(x = anio,
+               y = pib,
+               color = `Macro Region`)) +
+    geom_line(size=1.5,alpha=0.4) + 
+    geom_point(size = 4) +
+    geom_segment(aes(xend = 2019, yend = pib, group = `Macro Region`),
+                 linetype = 2, colour = 'grey') +
+geom_text(aes(x = min(anio) , y = min(pib), label = as.factor(anio)), hjust=-2,vjust = -0.2, alpha = 0.5, colour = 'brown', size = 10) +
+    labs(title = "Trayectoria PIB turístico por Macro región ",
+         x = "Años",
+         y = "PIB. Serie de 2003 a 2019 (Millones de pesos a precios de 2013)",
+         color = "Estados") + 
+   theme_minimal()+
+    transition_reveal(anio) 
+    
+  
+
+
+```{r}
+primo
+```
